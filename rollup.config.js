@@ -19,60 +19,32 @@ const banner = `/*!
 
 export default commandLineArgs => {
   const configs = [
-    // CommonJS (for Node) and ES module (for bundlers) build
+    // CommonJS (for Node)
     {
       input: 'src/index.js',
-      external: [], // indicate which modules should be treated as external
+      external: [],
       output: [
         {
           banner,
-          file: pkg.main,
+          name: libraryName,
+          file: `dist/${libraryName}.cjs.js`,
           format: 'cjs'
         }
-        // {
-        //   banner,
-        //   file: pkg.module,
-        //   format: 'es'
-        // }
       ],
       plugins: [
-        resolve({ browser: false, modulesOnly: true }), // teach Rollup how to find external modules
-        commonjs({ include: 'node_modules/**' }), // so Rollup can convert external modules to an ES module
-
-        // jsonParse(),
+        resolve({ browser: false, modulesOnly: true }),
+        commonjs({ include: 'node_modules/**' }),
         babel({
           exclude: ['node_modules/**']
+        }),
+        terser({
+          output: {
+            comments: /^!/
+          }
         })
       ]
     }
   ]
-
-  // if (commandLineArgs.environment === 'BUILD:production') {
-  //   // UMD Production
-  //   configs.push({
-  //     input: 'src/index.js',
-  //     output: {
-  //       banner,
-  //       name: libraryName,
-  //       file: `dist/${libraryName}.umd.min.js`,
-  //       format: 'umd'
-  //     },
-  //     plugins: [
-  //       // Uncomment the following 2 lines if your library has external dependencies
-  //       resolve(), // teach Rollup how to find external modules
-  //       commonjs(), // so Rollup can convert external modules to an ES module
-  //       babel({
-  //         presets: [['@babel/env', { modules: false }]],
-  //         exclude: ['node_modules/**']
-  //       }),
-  //       terser({
-  //         output: {
-  //           comments: /^!/
-  //         }
-  //       })
-  //     ]
-  //   })
-  // }
 
   return configs
 }
